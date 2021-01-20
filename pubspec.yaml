@@ -4,12 +4,14 @@ version: 4.1.0+1
 homepage: https://www.rongcloud.cn/
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
   flutter: ">=1.10.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  crypto: ^2.1.5
+  http: ^0.12.2
 
 dev_dependencies:
   flutter_test:
