@@ -114,6 +114,7 @@ class MessageFactory extends Object {
       message.readReceiptInfo = readReceiptInfo;
     }
     String contenStr = map["content"];
+    print(contenStr);
     MessageContent content =
         string2MessageContent(contenStr, message.objectName);
     if (contenStr == null || contenStr == "") {

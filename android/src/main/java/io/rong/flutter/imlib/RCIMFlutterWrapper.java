@@ -7,8 +7,6 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,9 +29,8 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.rong.common.RLog;
 import io.rong.common.fwlog.FwLog;
+import io.rong.flutter.imlib.ext.RCCustomMessage;
 import io.rong.flutter.imlib.forward.CombineMessage;
-import io.rong.imlib.AnnotationNotFoundException;
-import io.rong.imlib.IOperationCallback;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
@@ -54,7 +51,6 @@ import io.rong.message.FileMessage;
 import io.rong.message.GIFMessage;
 import io.rong.message.HQVoiceMessage;
 import io.rong.message.ImageMessage;
-import io.rong.message.MediaMessageContent;
 import io.rong.message.MessageHandler;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
@@ -450,11 +446,12 @@ public class RCIMFlutterWrapper {
             String appkey = String.valueOf(arg);
             this.appkey = appkey;
             RongIMClient.init(mContext, appkey);
-
+            RongIMClient.registerMessageType(RCCustomMessage.class);
             // IMLib 默认检测到小视频 SDK 才会注册小视频消息，所以此处需要手动注册
             RongIMClient.registerMessageType(SightMessage.class);
             // 因为合并消息 定义和注册都写在 kit 里面
             RongIMClient.registerMessageType(CombineMessage.class);
+            
 
             setReceiveMessageListener();
             setConnectStatusListener();

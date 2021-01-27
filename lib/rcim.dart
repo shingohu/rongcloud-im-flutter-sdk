@@ -111,7 +111,7 @@ class RCIM {
   ///初始化
   void initIM() {
     RongIMClient.init(APP_KEY);
-    RongIMClient.setReconnectKickEnable(true);
+    //RongIMClient.setReconnectKickEnable(true);
     _initIMListener();
   }
 
@@ -162,9 +162,9 @@ class RCIM {
 
   ///点击通知
   void onNotificationClick(String payload) {
-    if(jsonDecode(payload)!=null) {
-      Conversation conversation = MessageFactory.instance.string2Conversation(
-          payload);
+    if (jsonDecode(payload) != null) {
+      Conversation conversation =
+          MessageFactory.instance.string2Conversation(payload);
       _imListener.forEach((element) {
         element.onNotificationClick(conversation);
       });
@@ -201,10 +201,15 @@ class RCIM {
       RCConversationType.Private,
       RCConversationType.Group
     ];
-    return (await RongIMClient.getConversationList(displayConversationType))
-        .map((e) {
-      return e as Conversation;
-    }).toList();
+    List list =
+        (await RongIMClient.getConversationList(displayConversationType));
+    if (list != null) {
+      return list.map((e) {
+        return e as Conversation;
+      })?.toList();
+    } else {
+      return [];
+    }
   }
 
   void removeConversation(int conversationType, String targetId) {
