@@ -11,6 +11,7 @@
 #import "RCFlutterMessageFactory.h"
 #import "RCIMFlutterLog.h"
 #import "RCFlutterUtil.h"
+#import "RCCustomMessage.h"
 
 @interface RCMessageMapper : NSObject
 + (instancetype)sharedMapper;
@@ -268,6 +269,7 @@
         [[RCIMClient sharedRCIMClient] setRCMessageDestructDelegate:self];
         [[RCIMClient sharedRCIMClient] setRCChatRoomKVStatusChangeDelegate:self];
         [[RCIMClient sharedRCIMClient] setMessageExpansionDelegate:self];
+        [[RCIMClient sharedRCIMClient] registerMessageType:[RCCustomMessage class]];
     }else {
         NSLog(@"init 非法参数类型");
     }
@@ -2295,6 +2297,9 @@
     [RCLog i:[NSString stringWithFormat:@"%@",LOG_TAG]];
     NSDictionary *dic = @{@"status":@(status)};
     [self.channel invokeMethod:RCMethodCallBackKeyConnectionStatusChange arguments:dic];
+    if(status == ConnectionStatus_Connected){
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"IMLoginSuccessNotification" object:nil];
+    }
 }
 
 #pragma mark - RCTypingStatusDelegate
@@ -2423,4 +2428,6 @@
     return NO;
 }
 
+
 @end
+
