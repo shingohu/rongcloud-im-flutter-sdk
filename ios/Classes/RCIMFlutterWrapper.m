@@ -309,6 +309,7 @@
         NSString *token = (NSString *)arg;
         [[RCIMClient sharedRCIMClient] connectWithToken:token dbOpened:^(RCDBErrorCode code) {
             [RCLog i:[NSString stringWithFormat:@"%@ dbOpened，code: %@",LOG_TAG, @(code)]];
+            result(@{@"code":@(code), @"userId":@""});
         } success:^(NSString *userId) {
             [RCLog i:[NSString stringWithFormat:@"%@ success",LOG_TAG]];
             NSMutableDictionary *dic = [NSMutableDictionary new];
@@ -1658,7 +1659,7 @@
 - (void)getMessageByUId:(id)arg result:(FlutterResult)result {
     NSString *LOG_TAG = @"getMessageByUId";
     [RCLog i:[NSString stringWithFormat:@"%@ start param:%@",LOG_TAG,arg]];
-    if([arg isKindOfClass:[NSString class]]) {
+    if([arg isKindOfClass:[NSDictionary class]]) {
         NSString *messageUId = (NSString *)arg;
         RCMessage *message = [[RCIMClient sharedRCIMClient] getMessageByUId:messageUId];
         NSString *jsonString = [RCFlutterMessageFactory message2String:message];
