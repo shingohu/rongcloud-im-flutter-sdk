@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
-import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rongcloud_im_plugin/rongcloud_im_plugin.dart';
-import 'package:http/http.dart' as http;
 import 'package:rongcloud_im_plugin/src/util/message_factory.dart';
-
 export 'package:rongcloud_im_plugin/rongcloud_im_plugin.dart';
 
 class IMListener {
@@ -23,10 +20,14 @@ class IMListener {
 }
 
 class RCIM {
-  static final String _RM_API_HOST1 = "https://api-cn.ronghub.com/";
-  static final String _RM_API_HOST2 = "https://api2-cn.ronghub.com/";
-  static final String APP_KEY = "lmxuhwagl6itd";
-  static final String APP_SECRET = "rxW11Z7LrE6qLl";
+  // static final String _RM_API_HOST1 = "https://api-cn.ronghub.com/";
+  // static final String _RM_API_HOST2 = "https://api2-cn.ronghub.com/";
+
+  ///正式环境
+  static final String APP_PRODUCT_KEY = "cpj2xarlc7yfn";
+
+  ///测试环境
+  static final String APP_DEV_KEY = "6tnym1br64wq7";
 
   List<IMListener> _imListener = [];
 
@@ -54,64 +55,63 @@ class RCIM {
   static RCIM _getInstance() {
     if (_instance == null) {
       _instance = new RCIM._internal();
-      _instance.initIM();
     }
     return _instance;
   }
 
   ///融云server api header
-  Map<String, String> _apiRequestHeader() {
-    Map<String, String> header = {};
+  // Map<String, String> _apiRequestHeader() {
+  //   Map<String, String> header = {};
+  //
+  //   String nonce = Random().nextInt(10000).toString();
+  //
+  //   String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+  //
+  //   String signature =
+  //       sha1.convert(utf8.encode(APP_SECRET + nonce + timestamp)).toString();
+  //   header["App-Key"] = APP_KEY;
+  //   header["Nonce"] = nonce;
+  //   header["Timestamp"] = timestamp;
+  //   header["Signature"] = signature;
+  //
+  //   return header;
+  // }
 
-    String nonce = Random().nextInt(10000).toString();
-
-    String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-
-    String signature =
-        sha1.convert(utf8.encode(APP_SECRET + nonce + timestamp)).toString();
-    header["App-Key"] = APP_KEY;
-    header["Nonce"] = nonce;
-    header["Timestamp"] = timestamp;
-    header["Signature"] = signature;
-
-    return header;
-  }
-
-  Future<http.Response> _request(String api, {Map data}) async {
-    String url = _RM_API_HOST2 + api;
-    var response =
-        await http.post(url, headers: _apiRequestHeader(), body: data);
-    return response;
-  }
+  // Future<http.Response> _request(String api, {Map data}) async {
+  //   String url = _RM_API_HOST2 + api;
+  //   var response =
+  //       await http.post(url, headers: _apiRequestHeader(), body: data);
+  //   return response;
+  // }
 
   ///获取token
   ///only for test
-  Future<String> getToken(
-      {String userId, String userName, String avatar}) async {
-    String api = "user/getToken.json";
-    dynamic data = {
-      "userId": userId,
-      "name": userName,
-      "portraitUri": avatar,
-    };
-    http.Response response = await _request(api, data: data);
-    try {
-      if (response.statusCode == 200) {
-        Map<String, dynamic> body = jsonDecode(response.body);
-        print("获取RCIM-Token->" + response.body);
-        if (body["code"] == 200) {
-          return body["token"];
-        }
-      }
-    } catch (e) {}
-    print("获取RCIM-Token失败->" + response.body);
-    return null;
-  }
+  // Future<String> getToken(
+  //     {String userId, String userName, String avatar}) async {
+  //   String api = "user/getToken.json";
+  //   dynamic data = {
+  //     "userId": userId,
+  //     "name": userName,
+  //     "portraitUri": avatar,
+  //   };
+  //   http.Response response = await _request(api, data: data);
+  //   try {
+  //     if (response.statusCode == 200) {
+  //       Map<String, dynamic> body = jsonDecode(response.body);
+  //       print("获取RCIM-Token->" + response.body);
+  //       if (body["code"] == 200) {
+  //         return body["token"];
+  //       }
+  //     }
+  //   } catch (e) {}
+  //   print("获取RCIM-Token失败->" + response.body);
+  //   return null;
+  // }
 
   ///初始化
-  void initIM() {
-    RongIMClient.init(APP_KEY);
-    //RongIMClient.setReconnectKickEnable(true);
+  void initIM(String key) {
+    RongIMClient.init(key);
+    RongIMClient.setReconnectKickEnable(true);
     _initIMListener();
   }
 
@@ -147,8 +147,8 @@ class RCIM {
     RongIMClient.connect(token, (code, userId) {
       ///https://docs.rongcloud.cn/v3/views/im/ui/code/ios.html
       if (code == 0 || code == 34001) {
-        _refreshConversations();
         print("RCIM 登陆成功");
+        _refreshConversations();
       } else {
         print("RCIM connect fail->$code");
       }
@@ -190,7 +190,7 @@ class RCIM {
     if (conversation.latestMessageContent != null) {
       map["content"] = conversation.latestMessageContent.encode();
     } else if (conversation.originContentMap != null) {
-      map["content"] = conversation.originContentMap;
+      map["content"] = jsonEncode(conversation.originContentMap);
     }
     return jsonEncode(map);
   }
